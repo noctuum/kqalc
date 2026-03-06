@@ -16,6 +16,9 @@ vendor/
 # OS
 .DS_Store
 
+# AUR (separate git repo)
+aur/
+
 # Claude Code (local development tooling)
 .claude/
 CLAUDE.md
