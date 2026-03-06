@@ -1,6 +1,9 @@
 # Binary
 kqalc
 
+# GoReleaser output
+build/
+
 # Go
 vendor/
 
