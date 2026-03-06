@@ -1,6 +1,7 @@
 # kqalc
 
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/4fd9e15bc6e34e2c87e7a114963c6f34)](https://app.codacy.com/gh/noctuum/kqalc/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+[![Codacy Badge](https://app.codacy.com/project/badge/Coverage/4fd9e15bc6e34e2c87e7a114963c6f34)](https://app.codacy.com/gh/noctuum/kqalc/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_coverage)
 
 Full [qalculate](https://qalculate.github.io/) power in KRunner.
 
@@ -49,6 +50,12 @@ sudo apt update && sudo apt install kqalc
 
 ```bash
 paru -S kqalc-bin
+```
+
+### Nix
+
+```bash
+nix run github:noctuum/kqalc
 ```
 
 ## Usage

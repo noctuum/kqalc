@@ -4,6 +4,9 @@ kqalc
 # GoReleaser output
 build/
 
+# Nix build output
+result
+
 # Go
 vendor/
 
