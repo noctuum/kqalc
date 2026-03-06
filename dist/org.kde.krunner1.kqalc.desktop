@@ -1,0 +1,17 @@
+[Desktop Entry]
+Type=Service
+X-KDE-ServiceTypes=Plasma/Runner
+X-KDE-PluginInfo-Name=kqalc
+X-KDE-PluginInfo-Author=noctuum
+X-KDE-PluginInfo-License=GPL-2.0
+X-KDE-PluginInfo-EnabledByDefault=true
+X-Plasma-API=DBus
+X-Plasma-DBusRunner-Service=org.kde.krunner1.kqalc
+X-Plasma-DBusRunner-Path=/kqalc
+
+Name=kqalc
+Comment=Full qalculate power in KRunner
+Icon=accessories-calculator
+
+X-Plasma-Runner-Unique-Results=true
+X-Plasma-Runner-Min-Letter-Count=4

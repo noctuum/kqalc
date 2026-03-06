@@ -1,0 +1,3 @@
+[D-BUS Service]
+Name=org.kde.krunner1.kqalc
+Exec=/usr/bin/kqalc
