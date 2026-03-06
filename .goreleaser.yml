@@ -1,0 +1,39 @@
+version: 2
+
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+
+archives:
+  - formats:
+      - tar.gz
+    files:
+      - dist/*
+      - install.sh
+      - uninstall.sh
+      - README.md
+      - LICENSE
+
+nfpms:
+  - vendor: noctuum
+    homepage: https://github.com/noctuum/kqalc
+    maintainer: noctuum
+    description: Full qalculate power in KRunner
+    license: GPL-2.0
+    formats:
+      - deb
+      - rpm
+    dependencies:
+      - qalculate
+    contents:
+      - src: dist/org.kde.krunner1.kqalc.desktop
+        dst: /usr/share/krunner/dbusplugins/org.kde.krunner1.kqalc.desktop
+      - src: dist/org.kde.krunner1.kqalc.service
+        dst: /usr/share/dbus-1/services/org.kde.krunner1.kqalc.service
