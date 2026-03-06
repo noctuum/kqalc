@@ -9,6 +9,7 @@ result
 
 # Go
 vendor/
+coverage.out
 
 # IDE
 .idea/
