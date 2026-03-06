@@ -1,0 +1,41 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+Architectures: amd64 arm64
+Codename: stable
+Components: main
+Date: Fri, 06 Mar 2026 09:00:15 +0000
+Description: Full qalculate power in KRunner
+Label: kqalc
+Origin: kqalc
+MD5Sum:
+ e58130e9a3795c83b3cd63f86822fe1e              171 Release
+ 0dc73e4a5d06a642461e644ce5dc59d9              496 main/binary-amd64/Packages
+ cbbf751293f5e78f010c1638c2ff6ba9              379 main/binary-amd64/Packages.gz
+ 073328859825ab00750a631a36ed64f7              466 main/binary-arm64/Packages
+ c80546227191000e8c6f48decf8a5f25              366 main/binary-arm64/Packages.gz
+SHA1:
+ a4268baf4744f1772c1b8254824356c283af449a              171 Release
+ 0d6ebbefa689fc8dac5cf2b1b6d1b5ac5ecadc55              496 main/binary-amd64/Packages
+ 431f5bca42138959d54fef6a5b309470acf7f325              379 main/binary-amd64/Packages.gz
+ 01f5bbf56154d3d616886362a509ce9c338c9f75              466 main/binary-arm64/Packages
+ 5a0baf4b20216587b00d105586fadfa923f6f148              366 main/binary-arm64/Packages.gz
+SHA256:
+ cfe29e421b17ea21181940b0aad8133cd5a4d1e390506df7f7462b640bf890d9              171 Release
+ 2e1c3cd34fe8c088ebb973a370fbd4769d84b1d5b19e5f2ef304ebe1279bfb57              496 main/binary-amd64/Packages
+ e7fc96c122e867ff05b69d040184f76eb31e06eddf91681245434bffec522369              379 main/binary-amd64/Packages.gz
+ f0433d1c58156457981e673e2eab0695031a9ac8f8a4a3a7ad7fbec0346de571              466 main/binary-arm64/Packages
+ d223014acf3ef96a583f5ad623f4e8cd5d65bbae8098b69f0b6a8c76d78baa19              366 main/binary-arm64/Packages.gz
+SHA512:
+ 7d59671a1795bf45361d8e171b0c001b2c54ebccafe80c6f51cdd74f2093845ee66943c21aa4d586868800ae1ab02b25064b60be1c336cd6c516787812e0cb96              171 Release
+ ef481b23df95a0e4b4703ed11ca93221488fbd02cdd267bf0f8f8911da13dcde99483a6d2765909f0c57dea1c25bbbfe307df7fcb0bde90eac63a162f0b308fd              496 main/binary-amd64/Packages
+ 63eaef0b9d4da44347121ed0e5469d7e65cf6ebcdc8bc0a1d55acf66ad77a500d2a1410b2de6b1c43d007f7f906e8fc57cc3918ede47ed9a4060be7aa5319cfa              379 main/binary-amd64/Packages.gz
+ 9efb9cc1e8abc1c0bd24489b3f0165ea92b2e5d83394ff83e34df3f00eb81a4cc8082e293b795ced2a6d7870d0f6e3c6d41f6ffce0127f43ba5508347e05ad1a              466 main/binary-arm64/Packages
+ eef2243ea91190bdc629c396962a7a83465fb1dd81d34813e065dcf162d646256dc420c3cc3f166a33ff8596b5beb5d14c4802f797112c0e52232abf85b909ff              366 main/binary-arm64/Packages.gz
+-----BEGIN PGP SIGNATURE-----
+
+iHUEARYKAB0WIQQUEpohEyWwxtU0abz2oQ/wOgo+FQUCaaqXnwAKCRD2oQ/wOgo+
+FX2qAP9pHeucbGG8LKU9ZrJXUhMyhdi0OpSpL+628CJ4+Ga6AQD+OYq8wJhZGogU
+n3kUtwH9U+DXcGahy5aW8tgYqFwFlAc=
+=QH4N
+-----END PGP SIGNATURE-----
