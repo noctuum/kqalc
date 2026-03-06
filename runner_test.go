@@ -1,6 +1,9 @@
 package main
 
-import "testing"
+import (
+	"os/exec"
+	"testing"
+)
 
 func TestPrettifyExpr(t *testing.T) {
 	tests := []struct {
@@ -95,5 +98,86 @@ func TestNewMatchPrettifiesExpr(t *testing.T) {
 	want := "1.41421356  ←  √(2)"
 	if m.Text != want {
 		t.Errorf("Text = %q, want %q", m.Text, want)
+	}
+}
+
+func requireQalcRunner(t *testing.T) {
+	t.Helper()
+	if _, err := exec.LookPath("qalc"); err != nil {
+		t.Skip("qalc not installed")
+	}
+}
+
+func TestMatchBasicMath(t *testing.T) {
+	requireQalcRunner(t)
+	r := &Runner{}
+	matches, dbusErr := r.Match("qc 2+2")
+	if dbusErr != nil {
+		t.Fatalf("Match returned dbus error: %v", dbusErr)
+	}
+	if len(matches) == 0 {
+		t.Fatal("Match returned no results for '2+2'")
+	}
+	if matches[0].Id != "4" {
+		t.Errorf("Id = %q, want %q", matches[0].Id, "4")
+	}
+}
+
+func TestMatchNoPrefix(t *testing.T) {
+	r := &Runner{}
+	matches, _ := r.Match("2+2")
+	if len(matches) != 0 {
+		t.Errorf("Match without prefix returned %d matches, want 0", len(matches))
+	}
+}
+
+func TestMatchEmptyExpr(t *testing.T) {
+	r := &Runner{}
+	matches, _ := r.Match("qc ")
+	if len(matches) != 0 {
+		t.Errorf("Match with empty expr returned %d matches, want 0", len(matches))
+	}
+}
+
+func TestMatchNoDigits(t *testing.T) {
+	r := &Runner{}
+	matches, _ := r.Match("qc hello world")
+	if len(matches) != 0 {
+		t.Errorf("Match with no digits returned %d matches, want 0", len(matches))
+	}
+}
+
+func TestMatchExactAndApprox(t *testing.T) {
+	requireQalcRunner(t)
+	r := &Runner{}
+	matches, _ := r.Match("qc 1/3")
+	if len(matches) < 2 {
+		t.Skipf("expected 2 matches for '1/3', got %d (may vary by qalc version)", len(matches))
+	}
+	if matches[1].Relevance != 0.9 {
+		t.Errorf("exact match Relevance = %f, want 0.9", matches[1].Relevance)
+	}
+}
+
+func TestActions(t *testing.T) {
+	r := &Runner{}
+	actions, dbusErr := r.Actions()
+	if dbusErr != nil {
+		t.Fatalf("Actions returned dbus error: %v", dbusErr)
+	}
+	if len(actions) != 1 {
+		t.Fatalf("Actions returned %d actions, want 1", len(actions))
+	}
+	if actions[0].Id != "copy" {
+		t.Errorf("action Id = %q, want %q", actions[0].Id, "copy")
+	}
+}
+
+func TestRunReturnsNil(t *testing.T) {
+	r := &Runner{}
+	// CopyToClipboard will fail (no wl-copy/xclip in test) but Run handles the error
+	dbusErr := r.Run("test-value", "copy")
+	if dbusErr != nil {
+		t.Errorf("Run returned dbus error: %v", dbusErr)
 	}
 }
