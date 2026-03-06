@@ -1,5 +1,7 @@
 # kqalc
 
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/4fd9e15bc6e34e2c87e7a114963c6f34)](https://app.codacy.com/gh/noctuum/kqalc/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+
 Full [qalculate](https://qalculate.github.io/) power in KRunner.
 
 KDE Plasma's built-in calculator is limited — no currency conversion with `to`, no equation solving, no unit arithmetic. **kqalc** fixes this by wrapping the `qalc` CLI as a KRunner DBus plugin.
@@ -38,7 +40,7 @@ kquitapp6 krunner && kstart6 krunner
 ### Arch Linux (AUR)
 
 ```bash
-paru -S kqalc
+paru -S kqalc-bin
 ```
 
 ## Usage
