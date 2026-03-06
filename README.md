@@ -37,6 +37,14 @@ Requires Go 1.22+. Restart KRunner after install:
 kquitapp6 krunner && kstart6 krunner
 ```
 
+### Debian / Ubuntu
+
+```bash
+curl -fsSL https://noctuum.github.io/kqalc/gpg-key.asc | sudo tee /usr/share/keyrings/kqalc.asc > /dev/null
+echo "deb [signed-by=/usr/share/keyrings/kqalc.asc] https://noctuum.github.io/kqalc stable main" | sudo tee /etc/apt/sources.list.d/kqalc.list
+sudo apt update && sudo apt install kqalc
+```
+
 ### Arch Linux (AUR)
 
 ```bash
