@@ -26,3 +26,51 @@ jobs:
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  update-aur:
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get version and checksums
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          VERSION="${TAG#v}"
+          echo "VERSION=${VERSION}" >> "$GITHUB_ENV"
+          gh release download "$TAG" --pattern '*checksums.txt' --output checksums.txt
+          echo "SHA_AMD64=$(grep linux_amd64.tar.gz checksums.txt | cut -d' ' -f1)" >> "$GITHUB_ENV"
+          echo "SHA_ARM64=$(grep linux_arm64.tar.gz checksums.txt | cut -d' ' -f1)" >> "$GITHUB_ENV"
+
+      - name: Setup SSH
+        env:
+          AUR_SSH_KEY: ${{ secrets.AUR_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$AUR_SSH_KEY" > ~/.ssh/aur
+          chmod 600 ~/.ssh/aur
+          cat >> ~/.ssh/config <<EOF
+          Host aur.archlinux.org
+            IdentityFile ~/.ssh/aur
+            User aur
+          EOF
+          ssh-keyscan aur.archlinux.org >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Update AUR package
+        run: |
+          git clone ssh://aur@aur.archlinux.org/kqalc-bin.git aur
+          cd aur
+          sed -i "s/^pkgver=.*/pkgver=${VERSION}/" PKGBUILD
+          sed -i "s/^pkgrel=.*/pkgrel=1/" PKGBUILD
+          sed -i "s/^sha256sums_x86_64=.*/sha256sums_x86_64=('${SHA_AMD64}')/" PKGBUILD
+          sed -i "s/^sha256sums_aarch64=.*/sha256sums_aarch64=('${SHA_ARM64}')/" PKGBUILD
+          sed -i "s/pkgver = .*/pkgver = ${VERSION}/" .SRCINFO
+          sed -i "s|source_x86_64 = .*|source_x86_64 = https://github.com/noctuum/kqalc/releases/download/v${VERSION}/kqalc_${VERSION}_linux_amd64.tar.gz|" .SRCINFO
+          sed -i "s/sha256sums_x86_64 = .*/sha256sums_x86_64 = ${SHA_AMD64}/" .SRCINFO
+          sed -i "s|source_aarch64 = .*|source_aarch64 = https://github.com/noctuum/kqalc/releases/download/v${VERSION}/kqalc_${VERSION}_linux_arm64.tar.gz|" .SRCINFO
+          sed -i "s/sha256sums_aarch64 = .*/sha256sums_aarch64 = ${SHA_ARM64}/" .SRCINFO
+          git config user.name "agony"
+          git config user.email "27015@riseup.net"
+          git add PKGBUILD .SRCINFO
+          git diff --cached --quiet || git commit -m "Update to ${VERSION}" && git push
