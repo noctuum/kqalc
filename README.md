@@ -1,5 +1,7 @@
 # kqalc
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/1d662b12055f47fa84ce602bb1da2aab)](https://app.codacy.com/gh/noctuum/kqalc?utm_source=github.com&utm_medium=referral&utm_content=noctuum/kqalc&utm_campaign=Badge_Grade)
+
 Full [qalculate](https://qalculate.github.io/) power in KRunner.
 
 KDE Plasma's built-in calculator is limited — no currency conversion with `to`, no equation solving, no unit arithmetic. **kqalc** fixes this by wrapping the `qalc` CLI as a KRunner DBus plugin.
