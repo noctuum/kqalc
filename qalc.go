@@ -4,10 +4,63 @@ import (
 	"context"
 	"os/exec"
 	"strings"
+	"sync"
 	"time"
 )
 
 const evalTimeout = 3 * time.Second
+
+// evaluate is the qalc seam; tests replace it to avoid spawning processes.
+var evaluate = Evaluate
+
+const (
+	cacheTTL        = 60 * time.Second
+	cacheMaxEntries = 256
+)
+
+type cacheEntry struct {
+	result string
+	err    error
+	at     time.Time
+}
+
+var (
+	cacheMu sync.Mutex
+	cache   = map[string]cacheEntry{}
+)
+
+func cacheLookup(key string) (string, error, bool) {
+	cacheMu.Lock()
+	defer cacheMu.Unlock()
+	e, ok := cache[key]
+	if !ok || time.Since(e.at) > cacheTTL {
+		return "", nil, false
+	}
+	return e.result, e.err, true
+}
+
+// cacheStore drops the whole map once full: entries live for cacheTTL at most,
+// so LRU bookkeeping would cost more than the occasional re-evaluation.
+func cacheStore(key, result string, err error) {
+	cacheMu.Lock()
+	defer cacheMu.Unlock()
+	if len(cache) >= cacheMaxEntries {
+		cache = make(map[string]cacheEntry, cacheMaxEntries)
+	}
+	cache[key] = cacheEntry{result: result, err: err, at: time.Now()}
+}
+
+// evaluateCached memoises qalc results — KRunner re-queries on every keystroke,
+// so typing "2+2" would otherwise evaluate "2", "2+" and "2+2".
+func evaluateCached(expr, mode string) (string, error) {
+	key := mode + "\x00" + expr
+	if result, err, ok := cacheLookup(key); ok {
+		return result, err
+	}
+	result, err := evaluate(expr, mode)
+	cacheStore(key, result, err)
+	return result, err
+}
 
 // Evaluate runs qalc with the given expression and returns the result.
 // Mode must be "approximate" or "exact".

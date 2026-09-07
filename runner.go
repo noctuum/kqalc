@@ -4,6 +4,7 @@ import (
 	"log"
 	"regexp"
 	"strings"
+	"sync"
 
 	"github.com/godbus/dbus/v5"
 )
@@ -38,8 +39,21 @@ func (r *Runner) Match(query string) ([]remoteMatch, *dbus.Error) {
 		return nil, nil
 	}
 
-	approx, errA := Evaluate(expr, "approximate")
-	exact, errE := Evaluate(expr, "exact")
+	// A conversion never yields a usable exact form, so skip spawning qalc for it.
+	// Otherwise run both modes at once — each costs ~58ms, almost all of it qalc startup.
+	var (
+		approx, exact string
+		errA, errE    error
+	)
+	if strings.Contains(expr, " to ") {
+		approx, errA = evaluateCached(expr, "approximate")
+	} else {
+		var wg sync.WaitGroup
+		wg.Add(2)
+		go func() { defer wg.Done(); approx, errA = evaluateCached(expr, "approximate") }()
+		go func() { defer wg.Done(); exact, errE = evaluateCached(expr, "exact") }()
+		wg.Wait()
+	}
 
 	var matches []remoteMatch
 
@@ -51,8 +65,7 @@ func (r *Runner) Match(query string) ([]remoteMatch, *dbus.Error) {
 	}
 	prettyExpr := prettifyExpr(expr)
 	if errE == nil && exact != "" && exact != approx && exact != expr && exact != prettyExpr &&
-		!isFiatCurrency(approx) && !strings.ContainsRune(approx, 'e') &&
-		!strings.Contains(expr, " to ") {
+		!isFiatCurrency(approx) && !strings.ContainsRune(approx, 'e') {
 		matches = append(matches, newMatch(exact, expr, 0.9))
 	}
 
