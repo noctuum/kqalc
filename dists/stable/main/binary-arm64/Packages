@@ -1,16 +1,15 @@
 Package: kqalc
-Version: 0.2.1
+Version: 0.2.2
 Architecture: arm64
 Maintainer: noctuum
 Installed-Size: 3840
 Depends: qalculate
-Filename: pool/main/k/kqalc/kqalc_0.2.1_linux_arm64.deb
-Size: 1530980
-MD5sum: 419e66bff73ebef13da9094f01f8cb95
-SHA1: ab1081815859a7d76d8b7cbbd169f3c2d698ff8b
-SHA256: 18bb46c93dba3051d65c9e0f925252f7699e4c81907b1616dc90d9719387f878
+Filename: pool/main/k/kqalc/kqalc_0.2.2_linux_arm64.deb
+Size: 1519964
+MD5sum: f168eabd085cb75a6828e8e16dca5acc
+SHA1: dbeee9c22f420be0d50c79d977291e44e9fe7eb2
+SHA256: f7690151a8eb41873fd4a4a2c1735df18818e7eb9720fb0271bb394965791fd5
 Priority: optional
 Homepage: https://github.com/noctuum/kqalc
 Description: Full qalculate power in KRunner
-License: GPL-2.0
 
