@@ -27,6 +27,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Attach KDE Store bundle
+        run: |
+          make store-bundle
+          gh release upload "$GITHUB_REF_NAME" build/store/kqalc-kde-store.tar.gz --clobber
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   update-aur:
     needs: release
     runs-on: ubuntu-latest

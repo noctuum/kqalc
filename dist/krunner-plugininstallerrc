@@ -1,0 +1,2 @@
+MetaDataFile=org.kde.krunner1.kqalc.desktop
+Exec=%{PROJECTDIR}/kqalc
