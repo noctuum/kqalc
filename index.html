@@ -149,12 +149,14 @@ cd kqalc
 
   <div class="section" id="after-install">
     <h2>After installing</h2>
-    <p style="color:var(--muted);margin-bottom:16px">kqalc runs as a D-Bus service, and the session has to notice it before <code>qc</code> works. What that takes depends on where the service file landed.</p>
+    <p style="color:var(--muted);margin-bottom:16px">kqalc runs as a D-Bus service, started on demand the first time you type <code>qc</code>. What it takes to get there depends on how you installed.</p>
 
-    <p><strong>From a package — AUR, Debian/Ubuntu.</strong> The service file goes to <code>/usr/share/dbus-1/services/</code>, which the message bus already watches. Restart KRunner and you are done:</p>
-<pre>kquitapp6 krunner && kstart6 krunner</pre>
+    <p><strong>From source.</strong> Nothing — <code>install.sh</code> starts kqalc for you, so <code>qc 2+2</code> works right away.</p>
 
-    <p style="margin-top:20px"><strong>From source or from the KDE Store.</strong> These write the service file into your home directory instead. If nothing has ever installed a user D-Bus service on this machine, the directory is brand new — and the bus only watches directories that existed when it started, so it will not see the runner. Logging out does not help either, because the user bus outlives the session. <strong>Reboot once.</strong> Every later install and update is picked up immediately.</p>
+    <p style="margin-top:20px"><strong>From a package — AUR, Debian/Ubuntu.</strong> Restart KRunner so it picks up the new plugin:</p>
+<pre>kquitapp6 krunner &amp;&amp; kstart6 krunner</pre>
+
+    <p style="margin-top:20px"><strong>From the KDE Store.</strong> Usually nothing. If <code>qc</code> finds nothing at all, start kqalc by hand once — Discover unpacks the archive under <code>~/.local/share/krunner-sources/</code>, and the <code>kqalc</code> file inside it is the one to run. This only happens on a machine that has never had a user D-Bus service before. From your next login on, it starts on demand like any other runner.</p>
 
     <p style="margin-top:20px"><strong>Nix.</strong> <code>nix run</code> builds and runs the binary without installing it, so KRunner never sees the plugin metadata. Add the package to a profile or to your system or home-manager configuration instead, then restart KRunner.</p>
   </div>
