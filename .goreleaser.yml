@@ -34,6 +34,8 @@ nfpms:
       - rpm
     dependencies:
       - qalculate
+    scripts:
+      postinstall: dist/postinstall.sh
     contents:
       - src: dist/org.kde.krunner1.kqalc.desktop
         dst: /usr/share/krunner/dbusplugins/org.kde.krunner1.kqalc.desktop

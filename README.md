@@ -24,6 +24,10 @@ KDE Plasma's built-in calculator is limited — no currency conversion with `to`
 
 ## Install
 
+### KDE Store
+
+Open Discover, go to Krunner → System Runners and install [kqalc](https://store.kde.org/p/2371030). On Arch, install `packagekit-qt6` first — Plasma lists it as optional, but the tool that installs KRunner plugins is linked against it and will not start without it.
+
 ### From source
 
 ```bash
@@ -32,11 +36,7 @@ cd kqalc
 ./install.sh
 ```
 
-Requires Go 1.22+. Restart KRunner after install:
-
-```bash
-kquitapp6 krunner && kstart6 krunner
-```
+Requires Go 1.22+.
 
 ### Debian / Ubuntu
 
@@ -57,6 +57,20 @@ paru -S kqalc-bin
 ```bash
 nix run github:noctuum/kqalc
 ```
+
+## After installing
+
+kqalc runs as a D-Bus service, and the session has to notice it before `qc` works. What that takes depends on where the service file landed.
+
+**Installed from a package — AUR, Debian/Ubuntu.** The service file goes to `/usr/share/dbus-1/services/`, which the message bus already watches. Restart KRunner and you are done:
+
+```bash
+kquitapp6 krunner && kstart6 krunner
+```
+
+**Installed from source or from the KDE Store.** These write the service file into your home directory instead. If nothing has ever installed a user D-Bus service on this machine, the directory is brand new — and the bus only watches directories that existed when it started, so it will not see the runner. Logging out does not help either, because the user bus outlives the session. **Reboot once.** Every later install and update is picked up immediately, with no reboot.
+
+**Nix.** `nix run` builds and runs the binary without installing it, so KRunner never sees the plugin metadata. Add the package to a profile or to your system or home-manager configuration instead, so its `share/` directory reaches `XDG_DATA_DIRS`, then restart KRunner.
 
 ## Usage
 
