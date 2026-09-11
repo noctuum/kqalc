@@ -9,12 +9,12 @@ install -Dm644 dist/org.kde.krunner1.kqalc.desktop \
 sed "s|Exec=.*|Exec=$HOME/.local/bin/kqalc|" dist/org.kde.krunner1.kqalc.service \
   | install -Dm644 /dev/stdin "$HOME/.local/share/dbus-1/services/org.kde.krunner1.kqalc.service"
 
-echo "Installed."
-echo
-echo "Restart KRunner:  kquitapp6 krunner && kstart6 krunner"
-echo
-echo "If 'qc 2+2' still finds nothing, the session bus has not picked up the new"
-echo "service file. It only watches directories that existed when it started, and"
-echo "this install may have just created ~/.local/share/dbus-1/services/. Logging"
-echo "out will not help — the user bus outlives the session. Reboot once; later"
-echo "installs and updates are picked up immediately."
+# Start it now instead of waiting for D-Bus to activate it. The bus only watches
+# service directories that existed when it started, so on a machine whose
+# ~/.local/share/dbus-1/services/ we just created it would not find kqalc at all
+# — and the user bus outlives a logout, so signing out would not help either.
+# A process that already owns the name needs no activation. From the next login
+# on the directory is there and activation takes over.
+setsid "$HOME/.local/bin/kqalc" >/dev/null 2>&1 &
+
+echo "Installed and running. Try it: Alt+Space, then 'qc 2+2'."
