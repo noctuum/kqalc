@@ -99,6 +99,14 @@
     <p class="req">Requires <strong>KDE Plasma 6</strong>, <a href="https://qalculate.github.io/">libqalculate</a> (<code>qalc</code> CLI), and <code>wl-copy</code> (Wayland) or <code>xclip</code> (X11).</p>
 
     <details class="distro" open>
+      <summary>KDE Store</summary>
+      <div class="distro-body">
+        <p>Open Discover, go to <strong>Krunner → System Runners</strong> and install <a href="https://store.kde.org/p/2371030">kqalc</a>.</p>
+        <p style="margin-top:12px">On Arch, install <code>packagekit-qt6</code> first — Plasma lists it as optional, but the tool that installs KRunner plugins is linked against it and will not start without it.</p>
+      </div>
+    </details>
+
+    <details class="distro">
       <summary>Debian / Ubuntu</summary>
       <div class="distro-body">
         <p>Add the APT repository and install:</p>
@@ -135,10 +143,20 @@ sudo apt update && sudo apt install kqalc</pre>
 <pre>git clone https://github.com/noctuum/kqalc.git
 cd kqalc
 ./install.sh</pre>
-        <p style="margin-top:12px">Restart KRunner after install:</p>
-<pre>kquitapp6 krunner && kstart6 krunner</pre>
       </div>
     </details>
+  </div>
+
+  <div class="section" id="after-install">
+    <h2>After installing</h2>
+    <p style="color:var(--muted);margin-bottom:16px">kqalc runs as a D-Bus service, and the session has to notice it before <code>qc</code> works. What that takes depends on where the service file landed.</p>
+
+    <p><strong>From a package — AUR, Debian/Ubuntu.</strong> The service file goes to <code>/usr/share/dbus-1/services/</code>, which the message bus already watches. Restart KRunner and you are done:</p>
+<pre>kquitapp6 krunner && kstart6 krunner</pre>
+
+    <p style="margin-top:20px"><strong>From source or from the KDE Store.</strong> These write the service file into your home directory instead. If nothing has ever installed a user D-Bus service on this machine, the directory is brand new — and the bus only watches directories that existed when it started, so it will not see the runner. Logging out does not help either, because the user bus outlives the session. <strong>Reboot once.</strong> Every later install and update is picked up immediately.</p>
+
+    <p style="margin-top:20px"><strong>Nix.</strong> <code>nix run</code> builds and runs the binary without installing it, so KRunner never sees the plugin metadata. Add the package to a profile or to your system or home-manager configuration instead, then restart KRunner.</p>
   </div>
 
   <div class="section">
