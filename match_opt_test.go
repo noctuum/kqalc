@@ -6,7 +6,8 @@ import (
 	"time"
 )
 
-// stubEvaluate replaces the qalc seam and returns a restore func.
+// stubEvaluate replaces the qalc seam and empties the cache for the rest of
+// the test.
 func stubEvaluate(t *testing.T, fn func(expr, mode string) (string, error)) {
 	t.Helper()
 	orig := evaluate
@@ -112,7 +113,7 @@ func TestMatchRunsBothModesConcurrently(t *testing.T) {
 
 	// Sequential would take 2*delay. Allow generous headroom for scheduling.
 	if elapsed >= 2*delay {
-		t.Errorf("Match took %v, want well under %v — evaluations are not concurrent", elapsed, 2*delay)
+		t.Errorf("Match took %v, want well under %v: evaluations are not concurrent", elapsed, 2*delay)
 	}
 }
 
@@ -131,7 +132,7 @@ func TestMatchCachesRepeatedQuery(t *testing.T) {
 	}
 
 	if got := rec.count("approximate"); got != 1 {
-		t.Errorf("approximate evaluations = %d, want 1 — repeated query was not cached", got)
+		t.Errorf("approximate evaluations = %d, want 1: repeated query was not cached", got)
 	}
 }
 
@@ -151,7 +152,7 @@ func TestMatchCacheDistinguishesExpressions(t *testing.T) {
 	}
 
 	if got := rec.count("approximate"); got != 2 {
-		t.Errorf("approximate evaluations = %d, want 2 — distinct expressions must not share a cache entry", got)
+		t.Errorf("approximate evaluations = %d, want 2: distinct expressions must not share a cache entry", got)
 	}
 }
 
@@ -168,7 +169,7 @@ func TestCacheEvictsWhenFull(t *testing.T) {
 	cacheMu.Unlock()
 
 	if size > cacheMaxEntries {
-		t.Errorf("cache size = %d, want <= %d — cache grows without bound", size, cacheMaxEntries)
+		t.Errorf("cache size = %d, want <= %d: cache grows without bound", size, cacheMaxEntries)
 	}
 }
 

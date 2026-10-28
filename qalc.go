@@ -50,8 +50,8 @@ func cacheStore(key, result string, err error) {
 	cache[key] = cacheEntry{result: result, err: err, at: time.Now()}
 }
 
-// evaluateCached memoises qalc results — KRunner re-queries on every keystroke,
-// so typing "2+2" would otherwise evaluate "2", "2+" and "2+2".
+// evaluateCached memoizes qalc results. KRunner sends a query on every
+// keystroke, so typing "2+2" would otherwise evaluate "2", "2+" and "2+2".
 func evaluateCached(expr, mode string) (string, error) {
 	key := mode + "\x00" + expr
 	if result, err, ok := cacheLookup(key); ok {

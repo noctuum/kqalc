@@ -22,13 +22,15 @@ uninstall:
 	rm -f $(DESTDIR)$(PREFIX)/share/krunner/dbusplugins/org.kde.krunner1.kqalc.desktop
 	rm -f $(DESTDIR)$(PREFIX)/share/dbus-1/services/org.kde.krunner1.kqalc.service
 
-# Bundle for store.kde.org / opendesktop.org, installable by
-# krunner-plugininstaller without root. Both architectures ship in one archive:
-# KNewStuff resolves updates by version alone, so a second download slot would
-# hand arm64 users the amd64 build on their next update.
-# The archive stays flat — KNewStuff only wraps it in its own subdirectory when
-# the top level holds more than one entry — and its name carries no dot before
-# the extension, since that directory is named with QFileInfo::baseName().
+# Bundle for store.kde.org and opendesktop.org, installed by
+# krunner-plugininstaller without root. Both architectures ship in one archive.
+# KNewStuff resolves an update by version alone, so a second download slot
+# would hand arm64 users the amd64 build on their next update.
+# The archive stays flat. KNewStuff unpacks it into a directory of its own only
+# when the top level holds more than one entry, and krunner-plugininstaller
+# looks for krunner-plugininstallerrc at the top of that directory. The name
+# has no dot before the extension, because KNewStuff names the directory with
+# QFileInfo::baseName().
 store-bundle:
 	rm -rf $(STORE_DIR)
 	mkdir -p $(STORE_DIR)
