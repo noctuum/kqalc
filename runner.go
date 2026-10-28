@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/godbus/dbus/v5"
 )
@@ -26,10 +27,54 @@ type remoteAction struct {
 	IconName string
 }
 
+// idleDelay is how long kqalc stays up after KRunner ends a match session.
+// Past cacheTTL every cached result has expired, so exiting loses nothing.
+var idleDelay = cacheTTL
+
 // Runner implements the org.kde.krunner1 DBus interface.
-type Runner struct{}
+type Runner struct {
+	// canExit reports whether the bus can start kqalc again on the next query.
+	canExit func() bool
+	// done is closed when kqalc has been idle for idleDelay and may exit.
+	done chan struct{}
+	once sync.Once
+
+	mu sync.Mutex
+	// activity counts Match and Teardown calls. A timer armed by Teardown
+	// acts only if no call came in after it.
+	activity int
+}
+
+func newRunner(canExit func() bool) *Runner {
+	return &Runner{canExit: canExit, done: make(chan struct{})}
+}
+
+// Teardown is called by KRunner when a match session is over.
+func (r *Runner) Teardown() *dbus.Error {
+	seen := r.touch()
+	time.AfterFunc(idleDelay, func() { r.expire(seen) })
+	return nil
+}
+
+func (r *Runner) touch() int {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	r.activity++
+	return r.activity
+}
+
+func (r *Runner) expire(seen int) {
+	r.mu.Lock()
+	stale := seen != r.activity
+	r.mu.Unlock()
+	if stale || !r.canExit() {
+		return
+	}
+	r.once.Do(func() { close(r.done) })
+}
 
 func (r *Runner) Match(query string) ([]remoteMatch, *dbus.Error) {
+	r.touch()
 	if !strings.HasPrefix(query, triggerPrefix) {
 		return nil, nil
 	}
@@ -39,8 +84,9 @@ func (r *Runner) Match(query string) ([]remoteMatch, *dbus.Error) {
 		return nil, nil
 	}
 
-	// A conversion never yields a usable exact form, so skip spawning qalc for it.
-	// Otherwise run both modes at once — each costs ~58ms, almost all of it qalc startup.
+	// A conversion never yields a usable exact form, so it gets one qalc run.
+	// Anything else runs both modes at once: each run costs about 58 ms, almost
+	// all of it qalc startup.
 	var (
 		approx, exact string
 		errA, errE    error
@@ -76,8 +122,8 @@ func (r *Runner) Match(query string) ([]remoteMatch, *dbus.Error) {
 	return matches, nil
 }
 
-// isFiatCurrency checks if the result contains a fiat currency symbol.
-// Crypto symbols like ₿ (Bitcoin) are excluded — exact results are useful there.
+// isFiatCurrency reports whether the result holds a fiat currency symbol.
+// fiatSymbols leaves out ₿, so a Bitcoin result keeps its exact form.
 func isFiatCurrency(result string) bool {
 	for _, r := range result {
 		if strings.ContainsRune(fiatSymbols, r) {
@@ -87,11 +133,12 @@ func isFiatCurrency(result string) bool {
 	return false
 }
 
-// formatFiat truncates decimals to 2 and inserts a space after the currency symbol.
 var decimalRe = regexp.MustCompile(`(\d)([.,])(\d{2})\d+`)
 
 const fiatSymbols = "$€£¥₹₽₺₴₾₫₦₱₡₲₵₼₸₪₩₭₮₯₷₨"
 
+// formatFiat truncates the decimals to two and puts a space after the
+// currency symbol.
 func formatFiat(result string) string {
 	result = decimalRe.ReplaceAllString(result, "${1}${2}${3}")
 	for i, r := range result {
@@ -106,7 +153,6 @@ func formatFiat(result string) string {
 	return result
 }
 
-// prettifyExpr replaces ASCII function names with Unicode equivalents for display.
 var exprReplacements = strings.NewReplacer(
 	"sqrt(", "√(",
 	"cbrt(", "∛(",
@@ -122,9 +168,10 @@ var superscriptDigits = strings.NewReplacer(
 	"5", "⁵", "6", "⁶", "7", "⁷", "8", "⁸", "9", "⁹",
 )
 
-// prettifyExponent converts "2^64" → "2⁶⁴".
 var caretRe = regexp.MustCompile(`\^(\d+)`)
 
+// prettifyExpr rewrites an expression for display: sqrt(2) → √(2),
+// 2^64 → 2⁶⁴.
 func prettifyExpr(expr string) string {
 	expr = exprReplacements.Replace(expr)
 	expr = caretRe.ReplaceAllStringFunc(expr, func(m string) string {

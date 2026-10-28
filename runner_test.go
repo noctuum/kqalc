@@ -3,7 +3,69 @@ package main
 import (
 	"os/exec"
 	"testing"
+	"time"
+
+	"github.com/godbus/dbus/v5"
 )
+
+func TestTeardownExitsWhenIdle(t *testing.T) {
+	orig := idleDelay
+	idleDelay = 20 * time.Millisecond
+	t.Cleanup(func() { idleDelay = orig })
+
+	tests := []struct {
+		name        string
+		activatable bool
+		matchAfter  bool
+		wantExit    bool
+	}{
+		{"idle after teardown", true, false, true},
+		{"match after teardown", true, true, false},
+		{"bus cannot start it again", false, false, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			r := newRunner(func() bool { return tt.activatable })
+			if err := r.Teardown(); err != nil {
+				t.Fatalf("Teardown returned %v", err)
+			}
+			if tt.matchAfter {
+				r.Match("")
+			}
+
+			var exited bool
+			select {
+			case <-r.done:
+				exited = true
+			case <-time.After(10 * idleDelay):
+			}
+			if exited != tt.wantExit {
+				t.Errorf("exited = %v, want %v", exited, tt.wantExit)
+			}
+		})
+	}
+}
+
+func TestActivatable(t *testing.T) {
+	conn, err := dbus.ConnectSessionBus()
+	if err != nil {
+		t.Skip("no session bus")
+	}
+	defer conn.Close()
+
+	tests := []struct {
+		name string
+		want bool
+	}{
+		{"org.freedesktop.DBus", true},
+		{"org.kde.krunner1.kqalc.nonexistent", false},
+	}
+	for _, tt := range tests {
+		if got := activatable(conn, tt.name); got != tt.want {
+			t.Errorf("activatable(%q) = %v, want %v", tt.name, got, tt.want)
+		}
+	}
+}
 
 func TestPrettifyExpr(t *testing.T) {
 	tests := []struct {
@@ -58,11 +120,11 @@ func TestFormatFiat(t *testing.T) {
 		// truncate decimals to 2
 		{"$1848.5234", "$ 1848.52"},
 		{"€1234.5678", "€ 1234.56"},
-		// already 2 decimals — no truncation, add space
+		// already 2 decimals: no truncation, add the space
 		{"£99.99", "£ 99.99"},
 		// comma as decimal separator
 		{"€1234,5678", "€ 1234,56"},
-		// already has space — don't double
+		// already has the space: no second one
 		{"$ 100.00", "$ 100.00"},
 		// no decimals
 		{"¥1000", "¥ 1000"},
