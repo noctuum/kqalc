@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>kqalc — Full qalculate power in KRunner</title>
+<title>kqalc: full qalculate power in KRunner</title>
 <style>
   :root { --bg: #0d1117; --card: #161b22; --border: #30363d; --text: #c9d1d9; --muted: #8b949e; --accent: #58a6ff; --green: #3fb950; --tag: #1f6feb; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -51,7 +51,7 @@
 
 <div class="hero">
   <h1><span>kqalc</span></h1>
-  <p>Full qalculate power in KRunner. Currency conversion, unit arithmetic, equations — everything the built-in calculator can't do.</p>
+  <p>Full qalculate power in KRunner. Every currency libqalculate has rates for, arithmetic on units, equations and exact results.</p>
   <div class="badges">
     <a href="https://app.codacy.com/gh/noctuum/kqalc/dashboard"><img src="https://app.codacy.com/project/badge/Grade/4fd9e15bc6e34e2c87e7a114963c6f34" alt="Code quality"></a>
     <a href="https://app.codacy.com/gh/noctuum/kqalc/dashboard"><img src="https://app.codacy.com/project/badge/Coverage/4fd9e15bc6e34e2c87e7a114963c6f34" alt="Coverage"></a>
@@ -73,23 +73,23 @@
       </div>
       <div class="feature">
         <h3>Currency conversion</h3>
-        <p><code>qc 5000 GEL to USD</code> <code>qc 100 EUR to KZT</code></p>
+        <p><code>qc 5000 GEL to USD</code> <code>qc 100 EUR to KZT</code> <code>qc 100 USD + 50 EUR to GEL</code></p>
       </div>
       <div class="feature">
-        <h3>Unit conversion</h3>
-        <p><code>qc 100 km/h to mph</code> <code>qc 180 lbs to kg</code></p>
+        <h3>Units</h3>
+        <p><code>qc 100 km/h to mph</code> <code>qc 180 lb to kg</code> <code>qc 5 km + 300 m</code></p>
       </div>
       <div class="feature">
         <h3>Equations</h3>
         <p><code>qc x^2 = 9</code> <code>qc solve(2x+5=15, x)</code></p>
       </div>
       <div class="feature">
-        <h3>Exact &amp; approximate</h3>
-        <p>Both results shown side by side where useful</p>
+        <h3>Exact and approximate</h3>
+        <p>Side by side where both are useful: <code>qc 2/6</code> gives <code>0.33333333</code> and <code>1/3</code></p>
       </div>
       <div class="feature">
         <h3>Clipboard</h3>
-        <p>Select result to copy. Wayland &amp; X11.</p>
+        <p>Select a result to copy it. Wayland and X11.</p>
       </div>
     </div>
   </div>
@@ -101,8 +101,8 @@
     <details class="distro" open>
       <summary>KDE Store</summary>
       <div class="distro-body">
-        <p>Open Discover, go to <strong>Krunner → System Runners</strong> and install <a href="https://store.kde.org/p/2371030">kqalc</a>.</p>
-        <p style="margin-top:12px">On Arch, install <code>packagekit-qt6</code> first — Plasma lists it as optional, but the tool that installs KRunner plugins is linked against it and will not start without it.</p>
+        <p>In Discover, open <strong>Application Addons → Krunner → System Runners</strong> and install <a href="https://store.kde.org/p/2371030">kqalc</a>.</p>
+        <p style="margin-top:12px">On Arch, install <code>packagekit-qt6</code> first. Plasma lists it as optional, but <code>krunner-plugininstaller</code>, the tool that installs KRunner plugins, is linked against it and does not start without it.</p>
       </div>
     </details>
 
@@ -131,7 +131,7 @@ sudo apt update && sudo apt install kqalc</pre>
     <details class="distro">
       <summary>Nix</summary>
       <div class="distro-body">
-        <p>Run directly or add to your flake inputs:</p>
+        <p>The flake in the repository builds the package. <code>nix run</code> starts it without installing it, which is not enough for KRunner; see <a href="#after-install">After installing</a>.</p>
 <pre>nix run github:noctuum/kqalc</pre>
       </div>
     </details>
@@ -139,7 +139,7 @@ sudo apt update && sudo apt install kqalc</pre>
     <details class="distro">
       <summary>From source</summary>
       <div class="distro-body">
-        <p>Requires Go 1.22+:</p>
+        <p>Requires Go 1.25.7 or later:</p>
 <pre>git clone https://github.com/noctuum/kqalc.git
 cd kqalc
 ./install.sh</pre>
@@ -149,29 +149,31 @@ cd kqalc
 
   <div class="section" id="after-install">
     <h2>After installing</h2>
-    <p style="color:var(--muted);margin-bottom:16px">kqalc runs as a D-Bus service, started on demand the first time you type <code>qc</code>. What it takes to get there depends on how you installed.</p>
+    <p style="color:var(--muted);margin-bottom:16px">kqalc runs as a D-Bus service. The bus starts it on the first <code>qc</code> query. It exits 60 seconds after a KRunner session ends, when every cached result has expired, and the next query starts it again from whatever binary is installed by then.</p>
 
-    <p><strong>From source.</strong> Nothing — <code>install.sh</code> starts kqalc for you, so <code>qc 2+2</code> works right away.</p>
+    <p><strong>From source.</strong> Nothing to do. <code>install.sh</code> starts kqalc itself, so <code>qc 2+2</code> works right away, and it stops a copy left by an earlier install.</p>
 
-    <p style="margin-top:20px"><strong>From a package — AUR, Debian/Ubuntu.</strong> Restart KRunner so it picks up the new plugin:</p>
-<pre>kquitapp6 krunner &amp;&amp; kstart6 krunner</pre>
+    <p style="margin-top:20px"><strong>From a package: AUR, Debian, Ubuntu.</strong> Restart KRunner so it picks up the new plugin:</p>
+<pre>systemctl --user restart plasma-krunner.service</pre>
+    <p style="margin-top:12px">Versions up to 0.2.2 never exit on their own. After an upgrade from one of them, stop the old copy once, or the old binary keeps answering:</p>
+<pre>pkill -x kqalc</pre>
 
-    <p style="margin-top:20px"><strong>From the KDE Store.</strong> Usually nothing. If <code>qc</code> finds nothing at all, start kqalc by hand once — Discover unpacks the archive under <code>~/.local/share/krunner-sources/</code>, and the <code>kqalc</code> file inside it is the one to run. This only happens on a machine that has never had a user D-Bus service before. From your next login on, it starts on demand like any other runner.</p>
+    <p style="margin-top:20px"><strong>From the KDE Store.</strong> Usually nothing. If <code>qc</code> finds nothing at all, the bus has not picked up the new service file: it watches only the service directories that existed when it started, and this install created one. Start kqalc by hand once. Discover unpacks the archive under <code>~/.local/share/krunner-sources/</code>, and the <code>kqalc</code> file inside it is the one to run. It stays up until the bus can start it on demand.</p>
 
     <p style="margin-top:20px"><strong>Nix.</strong> <code>nix run</code> builds and runs the binary without installing it, so KRunner never sees the plugin metadata. Add the package to a profile or to your system or home-manager configuration instead, then restart KRunner.</p>
   </div>
 
   <div class="section">
     <h2>Usage</h2>
-    <p style="color:var(--muted);margin-bottom:16px">Open KRunner (<code>Alt+Space</code>) and type:</p>
+    <p style="color:var(--muted);margin-bottom:16px">Open KRunner with <code>Alt+Space</code> and type:</p>
 <pre>qc &lt;expression&gt;</pre>
-    <p style="color:var(--muted);margin-top:12px">The <code>qc </code> prefix triggers kqalc. Results appear instantly — select to copy to clipboard.</p>
+    <p style="color:var(--muted);margin-top:12px">The prefix <code>qc</code> followed by a space triggers kqalc. Select a result to copy it to the clipboard.</p>
   </div>
 
 </div>
 
 <footer>
-  <a href="https://github.com/noctuum/kqalc">kqalc</a> &mdash; GPL-2.0 &mdash; by <a href="https://github.com/noctuum">noctuum</a>
+  <a href="https://github.com/noctuum/kqalc">kqalc</a> | GPL-2.0 | by <a href="https://github.com/noctuum">noctuum</a>
 </footer>
 
 </body>
